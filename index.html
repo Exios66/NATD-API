@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom GPT API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    .endpoint {
+      background: #e0f7fa;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #b2ebf2;
+    }
+    .error {
+      color: red;
+    }
+    #api-doc {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Custom GPT API</h1>
+  <p>This file hosts both the API endpoints and documentation for your custom GPT.</p>
+
+  <h2>Interactive API Endpoints</h2>
+  <form id="apiForm">
+    <label for="endpoint">Endpoint:</label>
+    <select id="endpoint">
+      <option value="/api/v1/gpt/conversations">/api/v1/gpt/conversations</option>
+      <option value="/api/v1/gpt/respond">/api/v1/gpt/respond</option>
+      <option value="/api/v1/gpt/status">/api/v1/gpt/status</option>
+      <option value="/api/v1/gpt/actions">/api/v1/gpt/actions</option>
+    </select>
+
+    <label for="requestBody">Request Body (JSON):</label>
+    <textarea id="requestBody" rows="5" placeholder="{ \"example\": \"data\" }"></textarea>
+
+    <button type="submit">Send Request</button>
+  </form>
+
+  <h3>Response</h3>
+  <div id="response" class="endpoint">No response yet</div>
+
+  <h2>API Documentation</h2>
+  <pre id="api-doc">
+openapi: 3.0.3
+info:
+  title: Custom GPT API
+  description: API for interfacing with custom GPT functionalities.
+  version: 1.0.0
+paths:
+  /api/v1/gpt/conversations:
+    post:
+      summary: Start a new GPT conversation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: GPT response with conversation ID and reply.
+  /api/v1/gpt/respond:
+    post:
+      summary: Process a user input and return GPT's response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: GPT's reply to the user input.
+  /api/v1/gpt/status:
+    get:
+      summary: Check the status of the API server.
+      responses:
+        '200':
+          description: Server status.
+  /api/v1/gpt/actions:
+    post:
+      summary: Trigger custom GPT actions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                parameters:
+                  type: object
+      responses:
+        '200':
+          description: Action result.
+  </pre>
+
+  <script>
+    // Simulated GPT API logic
+    const gptApi = {
+      '/api/v1/gpt/conversations': (body) => ({
+        conversationId: 'conv_' + Math.random().toString(36).substring(7),
+        reply: `Hello! You said: "${body.message}"`,
+      }),
+      '/api/v1/gpt/respond': (body) => ({
+        reply: `Processing input: "${body.message}" for user: ${body.userId}`,
+      }),
+      '/api/v1/gpt/status': () => ({
+        status: 'online',
+        uptime: '48 hours',
+      }),
+      '/api/v1/gpt/actions': (body) => {
+        if (body.action === 'summarize') {
+          return { result: `Summary: ${body.parameters.text.split(' ').slice(0, 5).join(' ')}...` };
+        }
+        return { result: `Action '${body.action}' executed successfully.` };
+      },
+    };
+
+    // Handle API requests
+    document.getElementById('apiForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const endpoint = document.getElementById('endpoint').value;
+      const requestBody = document.getElementById('requestBody').value;
+
+      const responseElement = document.getElementById('response');
+      try {
+        const body = requestBody ? JSON.parse(requestBody) : {};
+
+        if (gptApi[endpoint]) {
+          const response = gptApi[endpoint](body);
+          responseElement.innerHTML = `<strong>Response:</strong> <pre>${JSON.stringify(response, null, 2)}</pre>`;
+        } else {
+          responseElement.innerHTML = `<strong class="error">Error:</strong> Endpoint not found.`;
+        }
+      } catch (err) {
+        responseElement.innerHTML = `<strong class="error">Error:</strong> Invalid JSON in request body.`;
+      }
+    });
+  </script>
+</body>
+</html>
