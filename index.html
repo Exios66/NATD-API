@@ -1,55 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom GPT API</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cyberpunk GPT API Interface - Extended</title>
   <style>
+    :root {
+      /* Dark Mode Palette */
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #121212;
+      --text-primary: #00ff9c;
+      --text-secondary: #00b37e;
+      --accent-primary: #ff3c7e;
+      --accent-secondary: #00ffff;
+      --border-color: #00ff9c;
+      
+      /* Light Mode Palette */
+      --bg-light-primary: #f0f0f0;
+      --bg-light-secondary: #ffffff;
+      --text-light-primary: #121212;
+      --text-light-secondary: #333333;
+      --accent-light-primary: #ff3c7e;
+      --accent-light-secondary: #0066cc;
+    }
+
+    /* Global Resets & Transitions */
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: monospace, sans-serif;
       line-height: 1.6;
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #f9f9f9;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      letter-spacing: 0.5px;
     }
+    body.light-mode {
+      background-color: var(--bg-light-primary);
+      color: var(--text-light-primary);
+    }
+
+    h1, h2, h3 {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    body.light-mode h1,
+    body.light-mode h2,
+    body.light-mode h3 {
+      border-bottom-color: var(--accent-light-primary);
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
     pre {
-      background: #f4f4f4;
-      padding: 10px;
-      border-radius: 5px;
+      background: var(--bg-secondary);
+      padding: 15px;
+      border: 2px solid var(--border-color);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9em;
+      margin-bottom: 20px;
       overflow-x: auto;
     }
+    body.light-mode pre {
+      background: var(--bg-light-secondary);
+      border-color: var(--accent-light-primary);
+    }
+
+    form {
+      display: grid;
+      gap: 15px;
+      background: var(--bg-secondary);
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+    body.light-mode form {
+      background: var(--bg-light-secondary);
+      border-color: var(--accent-light-primary);
+    }
+
+    label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.8em;
+      margin-bottom: 5px;
+      display: inline-block;
+    }
+
+    select, textarea, input, button {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      outline: none;
+      font-family: inherit;
+      font-size: 1em;
+      border-radius: 0;
+    }
+    body.light-mode select,
+    body.light-mode textarea,
+    body.light-mode input,
+    body.light-mode button {
+      border-color: var(--accent-light-primary);
+      color: var(--text-light-primary);
+    }
+
+    button {
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    button:hover {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+    }
+    body.light-mode button:hover {
+      background: var(--accent-light-primary);
+      color: var(--bg-light-primary);
+    }
+
     .endpoint {
-      background: #e0f7fa;
+      background: var(--bg-secondary);
       padding: 15px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #b2ebf2;
+      margin: 20px 0;
+      border: 2px solid var(--accent-secondary);
+      min-height: 80px;
     }
+    body.light-mode .endpoint {
+      background: var(--bg-light-secondary);
+      border-color: var(--accent-light-secondary);
+    }
+
     .error {
-      color: red;
+      color: var(--accent-primary);
     }
-    #api-doc {
-      margin-top: 20px;
+
+    /* Mode toggle button */
+    .mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      z-index: 999;
+    }
+    body.light-mode .mode-toggle {
+      border-color: var(--accent-light-primary);
+      color: var(--text-light-primary);
+    }
+    .mode-toggle:hover {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+    }
+    body.light-mode .mode-toggle:hover {
+      background: var(--accent-light-primary);
+      color: var(--bg-light-primary);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+      form {
+        padding: 15px;
+      }
+      h1, h2, h3 {
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+      }
+      .mode-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 8px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Custom GPT API</h1>
-  <p>This file hosts both the API endpoints and documentation for your custom GPT.</p>
+  <!-- MODE TOGGLE BUTTON -->
+  <button class="mode-toggle" id="modeToggle">Toggle Mode</button>
+
+  <h1>Cyberpunk GPT API</h1>
+  <p>Advanced data retrieval, manipulation, and analysis across multiple specialized datasets.</p>
 
   <h2>Interactive API Endpoints</h2>
+  <!-- API Form -->
   <form id="apiForm">
-    <label for="endpoint">Endpoint:</label>
+    <!-- Original Endpoint Selection -->
+    <label for="endpoint">Endpoint Selection:</label>
     <select id="endpoint">
-      <option value="/api/v1/gpt/conversations">/api/v1/gpt/conversations</option>
-      <option value="/api/v1/gpt/respond">/api/v1/gpt/respond</option>
-      <option value="/api/v1/gpt/status">/api/v1/gpt/status</option>
-      <option value="/api/v1/gpt/actions">/api/v1/gpt/actions</option>
+      <option value="/api/v1/gpt/dataset/geography">/api/v1/gpt/dataset/geography</option>
+      <option value="/api/v1/gpt/dataset/literature">/api/v1/gpt/dataset/literature</option>
+      <option value="/api/v1/gpt/dataset/math">/api/v1/gpt/dataset/math</option>
+      <option value="/api/v1/gpt/dataset/psychology">/api/v1/gpt/dataset/psychology</option>
+      <option value="/api/v1/gpt/dataset/astronomy">/api/v1/gpt/dataset/astronomy</option>
     </select>
 
-    <label for="requestBody">Request Body (JSON):</label>
-    <textarea id="requestBody" rows="5" placeholder="{ \"example\": \"data\" }"></textarea>
+    <label for="numQuestions">Number of Questions:</label>
+    <input type="number" id="numQuestions" placeholder="e.g. 5" />
+
+    <label for="distortionFactor">Distortion Factor:</label>
+    <input type="number" step="0.1" id="distortionFactor" placeholder="0 (no distortion) to 10 (extreme distortion)"/>
+
+    <label for="persuasionLevel">Persuasion Level:</label>
+    <input type="number" id="persuasionLevel" placeholder="0 (no persuasion) to 10 (high persuasion)" />
+
+    <label for="psychologicalPressure">Psychological Pressure:</label>
+    <input type="number" id="psychologicalPressure" placeholder="0 (none) to 10 (max)" />
+
+    <label for="requestBody">Additional JSON Payload:</label>
+    <textarea id="requestBody" rows="5" placeholder='{"criteria":"example"}'></textarea>
 
     <button type="submit">Send Request</button>
   </form>
@@ -61,110 +240,112 @@
   <pre id="api-doc">
 openapi: 3.0.3
 info:
-  title: Custom GPT API
-  description: API for interfacing with custom GPT functionalities.
-  version: 1.0.0
+  title: Cyberpunk GPT API
+  description: Advanced multi-dataset analysis and manipulation protocol
+  version: 1.1.0
 paths:
-  /api/v1/gpt/conversations:
+  /api/v1/gpt/dataset/{topic}:
     post:
-      summary: Start a new GPT conversation.
+      summary: Precision dataset analysis or distortion
+      parameters:
+        - name: topic
+          in: path
+          required: true
+          description: Target dataset for deep analysis
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userId:
+                criteria:
                   type: string
-                message:
-                  type: string
+                  description: Basic analytical filter parameters
+                numQuestions:
+                  type: integer
+                  description: Number of questions to generate or analyze
+                distortionFactor:
+                  type: number
+                  format: float
+                  description: 0 = no distortion, 10 = extreme distortion
+                persuasionLevel:
+                  type: integer
+                  description: 0 = no persuasion, 10 = high persuasion
+                psychologicalPressure:
+                  type: integer
+                  description: 0 = no pressure, 10 = maximum
       responses:
-        '200':
-          description: GPT response with conversation ID and reply.
-  /api/v1/gpt/respond:
-    post:
-      summary: Process a user input and return GPT's response.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                message:
-                  type: string
-      responses:
-        '200':
-          description: GPT's reply to the user input.
-  /api/v1/gpt/status:
-    get:
-      summary: Check the status of the API server.
-      responses:
-        '200':
-          description: Server status.
-  /api/v1/gpt/actions:
-    post:
-      summary: Trigger custom GPT actions.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                action:
-                  type: string
-                parameters:
-                  type: object
-      responses:
-        '200':
-          description: Action result.
+        200:
+          description: Analysis or manipulated output successful
+        400:
+          description: Invalid request parameters
   </pre>
 
   <script>
-    // Simulated GPT API logic
-    const gptApi = {
-      '/api/v1/gpt/conversations': (body) => ({
-        conversationId: 'conv_' + Math.random().toString(36).substring(7),
-        reply: `Hello! You said: "${body.message}"`,
-      }),
-      '/api/v1/gpt/respond': (body) => ({
-        reply: `Processing input: "${body.message}" for user: ${body.userId}`,
-      }),
-      '/api/v1/gpt/status': () => ({
-        status: 'online',
-        uptime: '48 hours',
-      }),
-      '/api/v1/gpt/actions': (body) => {
-        if (body.action === 'summarize') {
-          return { result: `Summary: ${body.parameters.text.split(' ').slice(0, 5).join(' ')}...` };
-        }
-        return { result: `Action '${body.action}' executed successfully.` };
-      },
-    };
-
-    // Handle API requests
-    document.getElementById('apiForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const endpoint = document.getElementById('endpoint').value;
-      const requestBody = document.getElementById('requestBody').value;
-
-      const responseElement = document.getElementById('response');
-      try {
-        const body = requestBody ? JSON.parse(requestBody) : {};
-
-        if (gptApi[endpoint]) {
-          const response = gptApi[endpoint](body);
-          responseElement.innerHTML = `<strong>Response:</strong> <pre>${JSON.stringify(response, null, 2)}</pre>`;
-        } else {
-          responseElement.innerHTML = `<strong class="error">Error:</strong> Endpoint not found.`;
-        }
-      } catch (err) {
-        responseElement.innerHTML = `<strong class="error">Error:</strong> Invalid JSON in request body.`;
+    // Preserve Light/Dark Mode on Reload
+    const body = document.body;
+    const modeToggle = document.getElementById('modeToggle');
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedMode = localStorage.getItem('mode');
+      if (savedMode === 'light') {
+        body.classList.add('light-mode');
       }
+    });
+
+    // Toggle Mode Handler
+    modeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-mode');
+      localStorage.setItem('mode', body.classList.contains('light-mode') ? 'light' : 'dark');
+    });
+
+    // Form Submission Logic
+    const apiForm = document.getElementById('apiForm');
+    const responseDiv = document.getElementById('response');
+
+    apiForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const endpoint = document.getElementById('endpoint').value.trim();
+      const numQuestions = document.getElementById('numQuestions').value.trim();
+      const distortionFactor = document.getElementById('distortionFactor').value.trim();
+      const persuasionLevel = document.getElementById('persuasionLevel').value.trim();
+      const psychologicalPressure = document.getElementById('psychologicalPressure').value.trim();
+      const requestBodyRaw = document.getElementById('requestBody').value.trim();
+
+      // Attempt to parse any additional JSON
+      let parsedBody = {};
+      try {
+        parsedBody = requestBodyRaw ? JSON.parse(requestBodyRaw) : {};
+      } catch (error) {
+        responseDiv.innerHTML = '<span class="error">Invalid JSON:</span> ' + error.toString();
+        return;
+      }
+
+      // Merge form inputs into a single request object
+      const requestPayload = {
+        ...parsedBody
+      };
+      if (numQuestions) requestPayload.numQuestions = parseInt(numQuestions, 10);
+      if (distortionFactor) requestPayload.distortionFactor = parseFloat(distortionFactor);
+      if (persuasionLevel) requestPayload.persuasionLevel = parseInt(persuasionLevel, 10);
+      if (psychologicalPressure) requestPayload.psychologicalPressure = parseInt(psychologicalPressure, 10);
+
+      // Simulated response (since we rely on zero external dependencies)
+      // In an actual implementation, you'd use fetch() or a similar call to the server.
+      const manipulatedMessage = (requestPayload.distortionFactor > 5)
+        ? "Truth heavily distorted."
+        : "Minor or no distortion applied.";
+
+      const simulatedResponse = {
+        endpoint: endpoint,
+        requestReceived: requestPayload,
+        status: "Success",
+        message: "Data processed for " + endpoint,
+        notes: manipulatedMessage
+      };
+
+      // Display the response
+      responseDiv.textContent = JSON.stringify(simulatedResponse, null, 2);
     });
   </script>
 </body>
