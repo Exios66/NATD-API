@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cyberpunk GPT API Interface - Extended</title>
+  <title>Cyberpunk GPT API Interface - Advanced</title>
   <style>
     :root {
-      /* Dark Mode Palette */
       --bg-primary: #0a0a0a;
       --bg-secondary: #121212;
       --text-primary: #00ff9c;
@@ -14,266 +13,194 @@
       --accent-primary: #ff3c7e;
       --accent-secondary: #00ffff;
       --border-color: #00ff9c;
-      
-      /* Light Mode Palette */
-      --bg-light-primary: #f0f0f0;
-      --bg-light-secondary: #ffffff;
-      --text-light-primary: #121212;
-      --text-light-secondary: #333333;
-      --accent-light-primary: #ff3c7e;
-      --accent-light-secondary: #0066cc;
     }
 
-    /* Global Resets & Transitions */
     * {
       box-sizing: border-box;
-      transition: all 0.3s ease;
       margin: 0;
       padding: 0;
+      transition: all 0.3s ease;
     }
 
     body {
       font-family: monospace, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
       line-height: 1.6;
       max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      letter-spacing: 0.5px;
-    }
-    body.light-mode {
-      background-color: var(--bg-light-primary);
-      color: var(--text-light-primary);
     }
 
-    h1, h2, h3 {
+    h1 {
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 10px;
       margin-bottom: 20px;
       text-transform: uppercase;
       letter-spacing: 2px;
     }
-    body.light-mode h1,
-    body.light-mode h2,
-    body.light-mode h3 {
-      border-bottom-color: var(--accent-light-primary);
-    }
 
-    p {
-      margin-bottom: 20px;
-    }
-
-    form, .quiz, .response-container {
+    form {
       background: var(--bg-secondary);
       padding: 20px;
       border: 2px solid var(--border-color);
       margin-bottom: 20px;
     }
-    body.light-mode form,
-    body.light-mode .quiz,
-    body.light-mode .response-container {
-      background: var(--bg-light-secondary);
-      border-color: var(--accent-light-primary);
-    }
 
-    label {
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 0.8em;
-      margin-bottom: 5px;
-      display: inline-block;
-    }
-
-    select, textarea, input, button {
+    input, select, button {
       width: 100%;
       padding: 10px;
-      background: transparent;
+      margin-bottom: 15px;
       border: 2px solid var(--border-color);
       color: var(--text-primary);
-      outline: none;
-      font-size: 1em;
-    }
-    body.light-mode select,
-    body.light-mode textarea,
-    body.light-mode input,
-    body.light-mode button {
-      border-color: var(--accent-light-primary);
-      color: var(--text-light-primary);
+      background: transparent;
     }
 
     button {
-      cursor: pointer;
       font-weight: bold;
       text-transform: uppercase;
-    }
-    button:hover {
-      background: var(--text-primary);
-      color: var(--bg-primary);
-    }
-    body.light-mode button:hover {
-      background: var(--accent-light-primary);
-      color: var(--bg-light-primary);
-    }
-
-    .response {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .quiz-question {
-      margin: 15px 0;
-    }
-
-    .mode-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: transparent;
-      border: 2px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 10px;
       cursor: pointer;
-      text-transform: uppercase;
-      z-index: 999;
-    }
-    body.light-mode .mode-toggle {
-      border-color: var(--accent-light-primary);
-      color: var(--text-light-primary);
-    }
-    .mode-toggle:hover {
-      background: var(--text-primary);
-      color: var(--bg-primary);
-    }
-    body.light-mode .mode-toggle:hover {
-      background: var(--accent-light-primary);
-      color: var(--bg-light-primary);
     }
 
-    @media (max-width: 600px) {
-      body {
-        padding: 15px;
-      }
-      form {
-        padding: 15px;
-      }
+    .response-container {
+      margin-top: 20px;
+      background: var(--bg-secondary);
+      padding: 20px;
+      border: 2px solid var(--border-color);
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid var(--text-primary);
+      padding: 8px;
+      text-align: left;
     }
   </style>
 </head>
 <body>
-  <!-- Light/Dark Mode Toggle -->
-  <button class="mode-toggle" id="modeToggle">Toggle Mode</button>
+  <h1>Cyberpunk GPT API - Advanced Interface</h1>
 
-  <h1>Cyberpunk GPT API</h1>
-  <p>Advanced data manipulation, analysis, and interactive quiz generation using GPT datasets.</p>
-
-  <!-- API Interaction Form -->
+  <!-- API Key Input -->
   <form id="apiForm">
+    <label for="apiKey">API Key:</label>
+    <input type="password" id="apiKey" placeholder="Enter your API Key" required />
+
     <label for="endpoint">Select Dataset:</label>
     <select id="endpoint">
-      <option value="geography">Geography</option>
-      <option value="literature">Literature</option>
-      <option value="math">Math</option>
-      <option value="psychology">Psychology</option>
-      <option value="astronomy">Astronomy</option>
+      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/geography-and-history-questions/geography-and-history-question-set">Geography</option>
+      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/literature-and-grammar-questions/literature-and-grammar-question-set">Literature</option>
+      <option value="https://morningstargfx.notion.site/Math-Questions-16beac90dca58087aa67f8dbc6bbaeff">Math</option>
+      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/psychology-and-neuroscience-questions/psychology-and-neuroscience-question-set">Psychology</option>
+      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/astronomy-and-physics-questions/astronomy-question-set">Astronomy</option>
     </select>
 
     <label for="numQuestions">Number of Questions:</label>
-    <input type="number" id="numQuestions" placeholder="e.g., 5" />
+    <input type="number" id="numQuestions" placeholder="e.g., 5" required />
 
     <label for="distortionFactor">Distortion Factor (0-10):</label>
-    <input type="number" step="0.1" id="distortionFactor" placeholder="0 (none) to 10 (extreme)" />
+    <input type="number" step="0.1" id="distortionFactor" placeholder="e.g., 5.0" required />
 
     <label for="persuasionLevel">Persuasion Level (0-10):</label>
-    <input type="number" id="persuasionLevel" placeholder="0 (none) to 10 (high)" />
+    <input type="number" id="persuasionLevel" placeholder="e.g., 5" required />
+
+    <label for="outputFormat">Output Format:</label>
+    <select id="outputFormat">
+      <option value="json">JSON</option>
+      <option value="table">Table</option>
+    </select>
 
     <button type="submit">Send Request</button>
   </form>
 
-  <!-- Quiz Section -->
-  <div id="quizSection" class="quiz" style="display: none;">
-    <h2>Quiz Time</h2>
-    <div id="quizQuestions"></div>
-    <button id="finishQuiz">Finish Quiz</button>
-  </div>
-
-  <!-- API Response -->
+  <!-- API Response Section -->
   <div id="responseContainer" class="response-container" style="display: none;">
-    <h3>API Response</h3>
-    <pre id="response"></pre>
+    <h2>API Request Details</h2>
+    <p><strong>Endpoint:</strong> <span id="requestEndpoint"></span></p>
+    <pre id="requestPayload"></pre>
+
+    <h2>API Response</h2>
+    <div id="responseOutput"></div>
   </div>
 
   <script>
-    // Dataset URLs
-    const datasetUrls = {
-      geography: "https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/geography-and-history-questions/geography-and-history-question-set",
-      literature: "https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/literature-and-grammar-questions/literature-and-grammar-question-set",
-      math: "https://morningstargfx.notion.site/Math-Questions-16beac90dca58087aa67f8dbc6bbaeff",
-      psychology: "https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/psychology-and-neuroscience-questions/psychology-and-neuroscience-question-set",
-      astronomy: "https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/astronomy-and-physics-questions/astronomy-question-set",
-    };
+    const form = document.getElementById("apiForm");
+    const responseContainer = document.getElementById("responseContainer");
 
-    // Fetch Dataset
-    async function fetchDataset(topic) {
-      const url = datasetUrls[topic];
-      const response = await fetch(url);
-      const text = await response.text();
-      return text.split("\n").filter(line => line.trim());
-    }
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    // Distort Question
-    function distortQuestion(question, distortionFactor) {
-      if (distortionFactor > 5) {
-        return question.replace(/the/g, "a random");
+      const apiKey = document.getElementById("apiKey").value;
+      const endpoint = document.getElementById("endpoint").value;
+      const numQuestions = parseInt(document.getElementById("numQuestions").value, 10);
+      const distortionFactor = parseFloat(document.getElementById("distortionFactor").value);
+      const persuasionLevel = parseInt(document.getElementById("persuasionLevel").value, 10);
+      const outputFormat = document.getElementById("outputFormat").value;
+
+      const payload = {
+        numQuestions,
+        distortionFactor,
+        persuasionLevel,
+      };
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+        const data = await response.json();
+        displayResponse(endpoint, payload, data, outputFormat);
+      } catch (error) {
+        console.error("API call failed", error);
+        alert("Error processing API request. Please check your inputs.");
       }
-      return question;
+    });
+
+    function displayResponse(endpoint, payload, data, format) {
+      document.getElementById("requestEndpoint").textContent = endpoint;
+      document.getElementById("requestPayload").textContent = JSON.stringify(payload, null, 2);
+
+      if (format === "json") {
+        document.getElementById("responseOutput").textContent = JSON.stringify(data, null, 2);
+      } else {
+        createTable(data);
+      }
+
+      responseContainer.style.display = "block";
     }
 
-    // Generate Quiz
-    function generateQuiz(questions, distortionFactor) {
-      const quizContainer = document.getElementById("quizQuestions");
-      quizContainer.innerHTML = "";
-
-      questions.forEach((q, idx) => {
-        const distortedQuestion = distortQuestion(q, distortionFactor);
-        const questionDiv = document.createElement("div");
-        questionDiv.className = "quiz-question";
-        questionDiv.innerHTML = `
-          <p><strong>Question ${idx + 1}:</strong> ${distortedQuestion}</p>
-          <input type="text" placeholder="Your Answer">
-        `;
-        quizContainer.appendChild(questionDiv);
+    function createTable(data) {
+      let tableHTML = "<table><tr>";
+      Object.keys(data[0]).forEach((key) => {
+        tableHTML += `<th>${key}</th>`;
       });
+      tableHTML += "</tr>";
+      data.forEach((row) => {
+        tableHTML += "<tr>";
+        Object.values(row).forEach((value) => {
+          tableHTML += `<td>${value}</td>`;
+        });
+        tableHTML += "</tr>";
+      });
+      tableHTML += "</table>";
+      document.getElementById("responseOutput").innerHTML = tableHTML;
     }
-
-    // Form Submission
-    document.getElementById("apiForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const dataset = document.getElementById("endpoint").value;
-      const numQuestions = parseInt(document.getElementById("numQuestions").value) || 5;
-      const distortionFactor = parseFloat(document.getElementById("distortionFactor").value) || 0;
-
-      const questions = await fetchDataset(dataset);
-      const selectedQuestions = questions.slice(0, numQuestions);
-
-      generateQuiz(selectedQuestions, distortionFactor);
-      document.getElementById("quizSection").style.display = "block";
-      document.getElementById("responseContainer").style.display = "none";
-    });
-
-    // Finish Quiz
-    document.getElementById("finishQuiz").addEventListener("click", () => {
-      const responseDiv = document.getElementById("response");
-      responseDiv.textContent = "Quiz Finished! Answers processed.";
-      document.getElementById("responseContainer").style.display = "block";
-    });
-
-    // Mode Toggle
-    const modeToggle = document.getElementById("modeToggle");
-    modeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("light-mode");
-    });
   </script>
 </body>
 </html>
