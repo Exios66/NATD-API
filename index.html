@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cyberpunk GPT Quiz API</title>
+  <title>Cyberpunk GPT API Interface - Extended</title>
   <style>
     :root {
       /* Dark Mode Palette */
@@ -24,12 +24,12 @@
       --accent-light-secondary: #0066cc;
     }
 
-    /* Global Styles */
+    /* Global Resets & Transitions */
     * {
       box-sizing: border-box;
+      transition: all 0.3s ease;
       margin: 0;
       padding: 0;
-      transition: all 0.3s ease;
     }
 
     body {
@@ -64,13 +64,15 @@
       margin-bottom: 20px;
     }
 
-    form, .quiz {
+    form, .quiz, .response-container {
       background: var(--bg-secondary);
       padding: 20px;
       border: 2px solid var(--border-color);
       margin-bottom: 20px;
     }
-    body.light-mode form, body.light-mode .quiz {
+    body.light-mode form,
+    body.light-mode .quiz,
+    body.light-mode .response-container {
       background: var(--bg-light-secondary);
       border-color: var(--accent-light-primary);
     }
@@ -92,7 +94,10 @@
       outline: none;
       font-size: 1em;
     }
-    body.light-mode select, body.light-mode textarea, body.light-mode input, body.light-mode button {
+    body.light-mode select,
+    body.light-mode textarea,
+    body.light-mode input,
+    body.light-mode button {
       border-color: var(--accent-light-primary);
       color: var(--text-light-primary);
     }
@@ -112,23 +117,14 @@
     }
 
     .response {
-      background: var(--bg-secondary);
-      padding: 15px;
-      border: 2px solid var(--accent-secondary);
-      margin: 20px 0;
       white-space: pre-wrap;
       word-wrap: break-word;
-    }
-    body.light-mode .response {
-      background: var(--bg-light-secondary);
-      border-color: var(--accent-light-secondary);
     }
 
     .quiz-question {
       margin: 15px 0;
     }
 
-    /* Mode toggle button */
     .mode-toggle {
       position: fixed;
       top: 20px;
@@ -139,6 +135,7 @@
       padding: 10px;
       cursor: pointer;
       text-transform: uppercase;
+      z-index: 999;
     }
     body.light-mode .mode-toggle {
       border-color: var(--accent-light-primary);
@@ -167,13 +164,13 @@
   <!-- Light/Dark Mode Toggle -->
   <button class="mode-toggle" id="modeToggle">Toggle Mode</button>
 
-  <h1>Cyberpunk GPT Quiz API</h1>
-  <p>Create dynamic quizzes from specialized datasets with optional distortion and persuasion effects.</p>
+  <h1>Cyberpunk GPT API</h1>
+  <p>Advanced data manipulation, analysis, and interactive quiz generation using GPT datasets.</p>
 
-  <!-- Form -->
-  <form id="quizForm">
-    <label for="dataset">Select Dataset:</label>
-    <select id="dataset">
+  <!-- API Interaction Form -->
+  <form id="apiForm">
+    <label for="endpoint">Select Dataset:</label>
+    <select id="endpoint">
       <option value="geography">Geography</option>
       <option value="literature">Literature</option>
       <option value="math">Math</option>
@@ -182,15 +179,15 @@
     </select>
 
     <label for="numQuestions">Number of Questions:</label>
-    <input type="number" id="numQuestions" placeholder="e.g., 5">
+    <input type="number" id="numQuestions" placeholder="e.g., 5" />
 
     <label for="distortionFactor">Distortion Factor (0-10):</label>
-    <input type="number" step="0.1" id="distortionFactor" placeholder="0 (none) to 10 (extreme)">
+    <input type="number" step="0.1" id="distortionFactor" placeholder="0 (none) to 10 (extreme)" />
 
     <label for="persuasionLevel">Persuasion Level (0-10):</label>
-    <input type="number" id="persuasionLevel" placeholder="0 (none) to 10 (high)">
+    <input type="number" id="persuasionLevel" placeholder="0 (none) to 10 (high)" />
 
-    <button type="submit">Start Quiz</button>
+    <button type="submit">Send Request</button>
   </form>
 
   <!-- Quiz Section -->
@@ -200,8 +197,11 @@
     <button id="finishQuiz">Finish Quiz</button>
   </div>
 
-  <!-- Response -->
-  <div id="response" class="response" style="display: none;"></div>
+  <!-- API Response -->
+  <div id="responseContainer" class="response-container" style="display: none;">
+    <h3>API Response</h3>
+    <pre id="response"></pre>
+  </div>
 
   <script>
     // Dataset URLs
@@ -214,42 +214,44 @@
     };
 
     // Fetch Dataset
-    async function fetchDataset(dataset) {
-      const url = datasetUrls[dataset];
+    async function fetchDataset(topic) {
+      const url = datasetUrls[topic];
       const response = await fetch(url);
       const text = await response.text();
-      return text.split("\n").filter(line => line.trim() !== "");
+      return text.split("\n").filter(line => line.trim());
     }
 
     // Distort Question
     function distortQuestion(question, distortionFactor) {
-      if (distortionFactor > 5) return question.replace(/the/g, "a random");
+      if (distortionFactor > 5) {
+        return question.replace(/the/g, "a random");
+      }
       return question;
     }
 
     // Generate Quiz
     function generateQuiz(questions, distortionFactor) {
-      const quizQuestionsDiv = document.getElementById("quizQuestions");
-      quizQuestionsDiv.innerHTML = "";
+      const quizContainer = document.getElementById("quizQuestions");
+      quizContainer.innerHTML = "";
 
       questions.forEach((q, idx) => {
-        const distorted = distortQuestion(q, distortionFactor);
+        const distortedQuestion = distortQuestion(q, distortionFactor);
         const questionDiv = document.createElement("div");
         questionDiv.className = "quiz-question";
         questionDiv.innerHTML = `
-          <p><strong>Question ${idx + 1}:</strong> ${distorted}</p>
+          <p><strong>Question ${idx + 1}:</strong> ${distortedQuestion}</p>
           <input type="text" placeholder="Your Answer">
         `;
-        quizQuestionsDiv.appendChild(questionDiv);
+        quizContainer.appendChild(questionDiv);
       });
     }
 
-    // Event Listeners
-    document.getElementById("quizForm").addEventListener("submit", async (e) => {
+    // Form Submission
+    document.getElementById("apiForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const dataset = document.getElementById("dataset").value;
-      const numQuestions = parseInt(document.getElementById("numQuestions").value, 10) || 5;
+      const dataset = document.getElementById("endpoint").value;
+      const numQuestions = parseInt(document.getElementById("numQuestions").value) || 5;
       const distortionFactor = parseFloat(document.getElementById("distortionFactor").value) || 0;
 
       const questions = await fetchDataset(dataset);
@@ -257,17 +259,20 @@
 
       generateQuiz(selectedQuestions, distortionFactor);
       document.getElementById("quizSection").style.display = "block";
+      document.getElementById("responseContainer").style.display = "none";
     });
 
+    // Finish Quiz
     document.getElementById("finishQuiz").addEventListener("click", () => {
-      document.getElementById("response").style.display = "block";
-      document.getElementById("response").textContent = "Quiz Finished! Answers processed.";
+      const responseDiv = document.getElementById("response");
+      responseDiv.textContent = "Quiz Finished! Answers processed.";
+      document.getElementById("responseContainer").style.display = "block";
     });
 
-    // Light/Dark Mode Toggle
-    document.getElementById("modeToggle").addEventListener("click", () => {
-      const body = document.body;
-      body.classList.toggle("light-mode");
+    // Mode Toggle
+    const modeToggle = document.getElementById("modeToggle");
+    modeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
     });
   </script>
 </body>
