@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cyberpunk GPT API Interface - Advanced</title>
+  <title>GPT API Interface with OpenAPI Schema</title>
   <style>
     :root {
       --bg-primary: #0a0a0a;
@@ -32,7 +32,7 @@
       padding: 20px;
     }
 
-    h1 {
+    h1, h2, h3 {
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 10px;
       margin-bottom: 20px;
@@ -40,14 +40,14 @@
       letter-spacing: 2px;
     }
 
-    form {
+    form, .response-container, .openapi-container {
       background: var(--bg-secondary);
       padding: 20px;
       border: 2px solid var(--border-color);
       margin-bottom: 20px;
     }
 
-    input, select, button {
+    input, select, textarea, button {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -63,144 +63,248 @@
     }
 
     .response-container {
-      margin-top: 20px;
-      background: var(--bg-secondary);
-      padding: 20px;
-      border: 2px solid var(--border-color);
+      display: none;
     }
 
     pre {
+      background: var(--bg-secondary);
+      padding: 15px;
+      overflow-x: auto;
       white-space: pre-wrap;
-      word-break: break-word;
+      word-wrap: break-word;
+      border: 1px solid var(--border-color);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
     }
 
     th, td {
+      padding: 10px;
       border: 1px solid var(--text-primary);
-      padding: 8px;
-      text-align: left;
     }
   </style>
 </head>
 <body>
-  <h1>Cyberpunk GPT API - Advanced Interface</h1>
+  <h1>GPT API Interface</h1>
+  <p>Interact with the GPT API and review the OpenAPI schema directly in this interface.</p>
 
-  <!-- API Key Input -->
+  <!-- API Interaction Form -->
   <form id="apiForm">
-    <label for="apiKey">API Key:</label>
-    <input type="password" id="apiKey" placeholder="Enter your API Key" required />
-
-    <label for="endpoint">Select Dataset:</label>
+    <label for="endpoint">Select Endpoint:</label>
     <select id="endpoint">
-      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/geography-and-history-questions/geography-and-history-question-set">Geography</option>
-      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/literature-and-grammar-questions/literature-and-grammar-question-set">Literature</option>
-      <option value="https://morningstargfx.notion.site/Math-Questions-16beac90dca58087aa67f8dbc6bbaeff">Math</option>
-      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/psychology-and-neuroscience-questions/psychology-and-neuroscience-question-set">Psychology</option>
-      <option value="https://morningstar-developments.gitbook.io/morningstar-developments-limited/core-documentation/experimental-question-datasets/datasets/astronomy-and-physics-questions/astronomy-question-set">Astronomy</option>
+      <option value="/api/v1/gpt/conversations">Start a Conversation</option>
+      <option value="/api/v1/gpt/respond">Respond to User Input</option>
+      <option value="/api/v1/gpt/status">Check API Status</option>
+      <option value="/api/v1/gpt/logs">Fetch Interaction Logs</option>
+      <option value="/api/v1/gpt/actions">Trigger GPT Action</option>
     </select>
 
-    <label for="numQuestions">Number of Questions:</label>
-    <input type="number" id="numQuestions" placeholder="e.g., 5" required />
-
-    <label for="distortionFactor">Distortion Factor (0-10):</label>
-    <input type="number" step="0.1" id="distortionFactor" placeholder="e.g., 5.0" required />
-
-    <label for="persuasionLevel">Persuasion Level (0-10):</label>
-    <input type="number" id="persuasionLevel" placeholder="e.g., 5" required />
-
-    <label for="outputFormat">Output Format:</label>
-    <select id="outputFormat">
-      <option value="json">JSON</option>
-      <option value="table">Table</option>
-    </select>
+    <label for="requestPayload">Request Payload (JSON):</label>
+    <textarea id="requestPayload" rows="8" placeholder='{"exampleKey": "exampleValue"}'></textarea>
 
     <button type="submit">Send Request</button>
   </form>
 
   <!-- API Response Section -->
-  <div id="responseContainer" class="response-container" style="display: none;">
+  <div id="responseContainer" class="response-container">
     <h2>API Request Details</h2>
     <p><strong>Endpoint:</strong> <span id="requestEndpoint"></span></p>
-    <pre id="requestPayload"></pre>
+    <pre id="requestPayloadDisplay"></pre>
 
     <h2>API Response</h2>
-    <div id="responseOutput"></div>
+    <pre id="apiResponse"></pre>
+  </div>
+
+  <!-- OpenAPI Schema Section -->
+  <div class="openapi-container">
+    <h2>OpenAPI Schema</h2>
+    <pre id="openapiSchema">
+openapi: 3.0.3
+info:
+  title: GPT Actions API
+  description: API for interacting with GPT functionalities programmatically.
+  version: 1.0.0
+servers:
+  - url: https://api.yourdomain.com
+    description: Production server
+  - url: https://sandbox.yourdomain.com
+    description: Sandbox server
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+  schemas:
+    ConversationRequest:
+      type: object
+      required:
+        - userId
+        - message
+      properties:
+        userId:
+          type: string
+          description: The unique identifier of the user.
+        message:
+          type: string
+          description: The input message from the user.
+    ConversationResponse:
+      type: object
+      properties:
+        conversationId:
+          type: string
+          description: Unique ID for the conversation.
+        reply:
+          type: string
+          description: GPT's response to the user's message.
+    ActionRequest:
+      type: object
+      required:
+        - action
+        - parameters
+      properties:
+        action:
+          type: string
+          description: The GPT action to trigger (e.g., "summarize", "generateCode").
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Parameters for the specified action.
+    ActionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        result:
+          type: string
+          description: The output of the triggered GPT action.
+paths:
+  /api/v1/gpt/conversations:
+    post:
+      summary: Start a new GPT conversation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationRequest'
+      responses:
+        '200':
+          description: Successful response with GPT's reply.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '400':
+          description: Invalid input.
+  /api/v1/gpt/respond:
+    post:
+      summary: Process a user input and return GPT's response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationRequest'
+      responses:
+        '200':
+          description: GPT's response to the input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '400':
+          description: Invalid input.
+  /api/v1/gpt/status:
+    get:
+      summary: Retrieve server or service status.
+      responses:
+        '200':
+          description: Server status information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Server status (e.g., "online", "offline").
+                  uptime:
+                    type: string
+                    description: Duration the server has been online.
+  /api/v1/gpt/logs:
+    get:
+      summary: Fetch interaction logs.
+      responses:
+        '200':
+          description: List of interaction logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                    userId:
+                      type: string
+                    message:
+                      type: string
+                    reply:
+                      type: string
+  /api/v1/gpt/actions:
+    post:
+      summary: Trigger a specific GPT action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+      responses:
+        '200':
+          description: Result of the GPT action.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+        '400':
+          description: Invalid action or parameters.
+security:
+  - ApiKeyAuth: []
+    </pre>
   </div>
 
   <script>
-    const form = document.getElementById("apiForm");
-    const responseContainer = document.getElementById("responseContainer");
+    document.getElementById("apiForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const apiKey = document.getElementById("apiKey").value;
       const endpoint = document.getElementById("endpoint").value;
-      const numQuestions = parseInt(document.getElementById("numQuestions").value, 10);
-      const distortionFactor = parseFloat(document.getElementById("distortionFactor").value);
-      const persuasionLevel = parseInt(document.getElementById("persuasionLevel").value, 10);
-      const outputFormat = document.getElementById("outputFormat").value;
+      const payload = document.getElementById("requestPayload").value;
 
-      const payload = {
-        numQuestions,
-        distortionFactor,
-        persuasionLevel,
-      };
+      document.getElementById("requestEndpoint").textContent = endpoint;
+      document.getElementById("requestPayloadDisplay").textContent = payload;
 
       try {
         const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify(payload),
+          body: payload,
         });
-
-        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
 
         const data = await response.json();
-        displayResponse(endpoint, payload, data, outputFormat);
+        document.getElementById("apiResponse").textContent = JSON.stringify(data, null, 2);
+        document.getElementById("responseContainer").style.display = "block";
       } catch (error) {
-        console.error("API call failed", error);
-        alert("Error processing API request. Please check your inputs.");
+        document.getElementById("apiResponse").textContent = `Error: ${error.message}`;
+        document.getElementById("responseContainer").style.display = "block";
       }
     });
-
-    function displayResponse(endpoint, payload, data, format) {
-      document.getElementById("requestEndpoint").textContent = endpoint;
-      document.getElementById("requestPayload").textContent = JSON.stringify(payload, null, 2);
-
-      if (format === "json") {
-        document.getElementById("responseOutput").textContent = JSON.stringify(data, null, 2);
-      } else {
-        createTable(data);
-      }
-
-      responseContainer.style.display = "block";
-    }
-
-    function createTable(data) {
-      let tableHTML = "<table><tr>";
-      Object.keys(data[0]).forEach((key) => {
-        tableHTML += `<th>${key}</th>`;
-      });
-      tableHTML += "</tr>";
-      data.forEach((row) => {
-        tableHTML += "<tr>";
-        Object.values(row).forEach((value) => {
-          tableHTML += `<td>${value}</td>`;
-        });
-        tableHTML += "</tr>";
-      });
-      tableHTML += "</table>";
-      document.getElementById("responseOutput").innerHTML = tableHTML;
-    }
   </script>
 </body>
 </html>
