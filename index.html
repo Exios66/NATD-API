@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GPT API Interface with OpenAPI Schema</title>
   <style>
     :root {
@@ -47,6 +47,12 @@
       margin-bottom: 20px;
     }
 
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
     input, select, textarea, button {
       width: 100%;
       padding: 10px;
@@ -54,6 +60,7 @@
       border: 2px solid var(--border-color);
       color: var(--text-primary);
       background: transparent;
+      font-family: monospace, sans-serif;
     }
 
     button {
@@ -84,6 +91,10 @@
       padding: 10px;
       border: 1px solid var(--text-primary);
     }
+
+    .info-line {
+      margin-bottom: 5px;
+    }
   </style>
 </head>
 <body>
@@ -94,15 +105,19 @@
   <form id="apiForm">
     <label for="endpoint">Select Endpoint:</label>
     <select id="endpoint">
-      <option value="/api/v1/gpt/conversations">Start a Conversation</option>
-      <option value="/api/v1/gpt/respond">Respond to User Input</option>
-      <option value="/api/v1/gpt/status">Check API Status</option>
-      <option value="/api/v1/gpt/logs">Fetch Interaction Logs</option>
-      <option value="/api/v1/gpt/actions">Trigger GPT Action</option>
+      <option value="/api/v1/gpt/conversations">Start a Conversation (POST)</option>
+      <option value="/api/v1/gpt/respond">Respond to User Input (POST)</option>
+      <option value="/api/v1/gpt/status">Check API Status (GET)</option>
+      <option value="/api/v1/gpt/logs">Fetch Interaction Logs (GET)</option>
+      <option value="/api/v1/gpt/actions">Trigger GPT Action (POST)</option>
     </select>
 
     <label for="requestPayload">Request Payload (JSON):</label>
-    <textarea id="requestPayload" rows="8" placeholder='{"exampleKey": "exampleValue"}'></textarea>
+    <textarea 
+      id="requestPayload" 
+      rows="8" 
+      placeholder='{"exampleKey":"exampleValue"} (Only required for POST endpoints)'>
+    </textarea>
 
     <button type="submit">Send Request</button>
   </form>
@@ -110,10 +125,13 @@
   <!-- API Response Section -->
   <div id="responseContainer" class="response-container">
     <h2>API Request Details</h2>
-    <p><strong>Endpoint:</strong> <span id="requestEndpoint"></span></p>
+    <div class="info-line"><strong>Endpoint:</strong> <span id="requestEndpoint"></span></div>
+    <div class="info-line"><strong>HTTP Method:</strong> <span id="requestMethod"></span></div>
+    <h3>Request Payload</h3>
     <pre id="requestPayloadDisplay"></pre>
 
     <h2>API Response</h2>
+    <div class="info-line"><strong>Status Code:</strong> <span id="statusCode"></span></div>
     <pre id="apiResponse"></pre>
   </div>
 
@@ -282,27 +300,74 @@ security:
     document.getElementById("apiForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const endpoint = document.getElementById("endpoint").value;
-      const payload = document.getElementById("requestPayload").value;
+      const endpointSelect = document.getElementById("endpoint");
+      const endpoint = endpointSelect.value;
+      let method = endpoint.includes("status") || endpoint.includes("logs") ? "GET" : "POST";
 
+      // Display request details in the UI
       document.getElementById("requestEndpoint").textContent = endpoint;
-      document.getElementById("requestPayloadDisplay").textContent = payload;
+      document.getElementById("requestMethod").textContent = method;
+
+      // Prepare fetch options
+      const payloadText = document.getElementById("requestPayload").value.trim();
+      const fetchOptions = {
+        method,
+        headers: { "Content-Type": "application/json" },
+      };
+
+      // For GET requests, we remove body to avoid server confusion
+      if (method === "GET") {
+        document.getElementById("requestPayloadDisplay").textContent = "No payload (GET request).";
+      } else {
+        // Validate JSON payload for POST requests
+        if (!payloadText) {
+          document.getElementById("apiResponse").textContent = "Error: Request payload is empty.";
+          document.getElementById("responseContainer").style.display = "block";
+          return;
+        }
+        try {
+          JSON.parse(payloadText); // test parse
+          fetchOptions.body = payloadText;
+          document.getElementById("requestPayloadDisplay").textContent = payloadText;
+        } catch (parseError) {
+          console.error("JSON parse error:", parseError);
+          document.getElementById("apiResponse").textContent = `JSON Parse Error: ${parseError.message}`;
+          document.getElementById("responseContainer").style.display = "block";
+          return;
+        }
+      }
+
+      // Show loading state
+      document.getElementById("apiResponse").textContent = "Loading...";
+      document.getElementById("responseContainer").style.display = "block";
+
+      // Log details to the console
+      console.log("Sending request ->", { endpoint, method, fetchOptions });
 
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: payload,
-        });
+        const response = await fetch(endpoint, fetchOptions);
+        const statusCode = response.status;
+        let responseData = null;
+        try {
+          responseData = await response.json();
+        } catch (jsonError) {
+          // If no valid JSON returned, capture raw text
+          responseData = await response.text();
+        }
 
-        const data = await response.json();
-        document.getElementById("apiResponse").textContent = JSON.stringify(data, null, 2);
-        document.getElementById("responseContainer").style.display = "block";
+        // Display status code and response data
+        document.getElementById("statusCode").textContent = statusCode;
+        document.getElementById("apiResponse").textContent = 
+          typeof responseData === "object" 
+          ? JSON.stringify(responseData, null, 2) 
+          : responseData;
+
+        console.log("Response received ->", { statusCode, responseData });
       } catch (error) {
+        // Any network or fetch-related error
+        console.error("Fetch error:", error);
+        document.getElementById("statusCode").textContent = "Network Error";
         document.getElementById("apiResponse").textContent = `Error: ${error.message}`;
-        document.getElementById("responseContainer").style.display = "block";
       }
     });
   </script>
